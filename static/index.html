@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Content Workflow Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <!-- ── Top navigation bar ── -->
+  <nav class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-brand">
+        <!-- Grid mark icon -->
+        <svg class="brand-icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <rect x="1" y="1" width="6.5" height="6.5" rx="1.5" fill="currentColor"/>
+          <rect x="10.5" y="1" width="6.5" height="6.5" rx="1.5" fill="currentColor" opacity="0.45"/>
+          <rect x="1" y="10.5" width="6.5" height="6.5" rx="1.5" fill="currentColor" opacity="0.45"/>
+          <rect x="10.5" y="10.5" width="6.5" height="6.5" rx="1.5" fill="currentColor"/>
+        </svg>
+        <span class="brand-name">Content Workflow</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Main page ── -->
+  <main class="page">
+
+    <!-- ── Page heading ── -->
+    <div class="page-heading">
+      <h1>Generate Marketing Content</h1>
+      <p>Enter product details to generate platform-ready copy across all channels.</p>
+    </div>
+
+    <!-- ── Input form ── -->
+    <section class="panel" id="form-section">
+
+      <div class="panel-header">
+        <h2>Product Details</h2>
+      </div>
+
+      <div class="panel-body">
+        <div class="form-grid">
+
+          <div class="field">
+            <label for="product_name">Product Name</label>
+            <input type="text" id="product_name" placeholder="e.g. Glow Serum SPF 30" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="category">Category</label>
+            <input type="text" id="category" placeholder="e.g. Skincare, Lipstick" autocomplete="off" />
+          </div>
+
+          <div class="field full-width">
+            <label for="features">
+              Key Features
+              <span class="label-hint">comma-separated</span>
+            </label>
+            <input type="text" id="features"
+              placeholder="e.g. hydrating, SPF 30, vitamin C, lightweight" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="audience">Target Audience</label>
+            <input type="text" id="audience"
+              placeholder="e.g. Women 25–40, skincare lovers" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="tone">Brand Tone</label>
+            <input type="text" id="tone"
+              placeholder="e.g. playful, luxurious, empowering" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="platform">Platform</label>
+            <select id="platform">
+              <option value="">Select a platform…</option>
+              <option value="TikTok">TikTok</option>
+              <option value="Instagram">Instagram</option>
+              <option value="Shopify">Shopify</option>
+              <option value="Amazon">Amazon</option>
+            </select>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="panel-footer">
+        <p id="error-msg" class="error-msg hidden"></p>
+        <button id="generate-btn" onclick="generateContent()">
+          <span id="btn-spinner" class="spinner hidden"></span>
+          <span id="btn-label">Generate Content</span>
+        </button>
+      </div>
+
+    </section><!-- /#form-section -->
+
+
+    <!-- ── Output section ── -->
+    <section id="output-section" class="hidden">
+
+      <!-- Header row: shown only with real results -->
+      <div class="results-header hidden" id="results-header">
+        <h2>Generated Content</h2>
+        <button class="action-btn" onclick="copyAll(this)">Copy All</button>
+      </div>
+
+      <!-- Skeleton cards — visible during API call -->
+      <div id="output-skeleton" class="output-stack hidden">
+        <div class="out-card skeleton-card">
+          <div class="skel-header">
+            <div class="skel-block label-skel"></div>
+          </div>
+          <div class="skel-body">
+            <div class="skel-block line-full"></div>
+            <div class="skel-block line-full"></div>
+            <div class="skel-block line-med"></div>
+          </div>
+        </div>
+        <div class="out-card skeleton-card">
+          <div class="skel-header">
+            <div class="skel-block label-skel"></div>
+          </div>
+          <div class="skel-body">
+            <div class="skel-block line-short"></div>
+            <div class="skel-block line-short"></div>
+            <div class="skel-block line-short"></div>
+          </div>
+        </div>
+        <div class="out-card skeleton-card">
+          <div class="skel-header">
+            <div class="skel-block label-skel"></div>
+          </div>
+          <div class="skel-body">
+            <div class="skel-block line-full"></div>
+            <div class="skel-block line-med"></div>
+            <div class="skel-block line-full"></div>
+            <div class="skel-block line-short"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real output cards — shown after a successful response -->
+      <div id="output-cards" class="output-stack hidden">
+
+        <!-- Product Description -->
+        <article class="out-card">
+          <div class="out-card-header">
+            <span class="out-card-label">Product Description</span>
+            <button class="copy-btn" onclick="copyBlock('out-description', this)">Copy</button>
+          </div>
+          <p id="out-description" class="out-card-body"></p>
+        </article>
+
+        <!-- Ad Headlines -->
+        <article class="out-card">
+          <div class="out-card-header">
+            <span class="out-card-label">Ad Headlines</span>
+            <button class="copy-btn" onclick="copyBlock('out-headlines', this)">Copy</button>
+          </div>
+          <ol id="out-headlines" class="out-card-body headlines-list"></ol>
+        </article>
+
+        <!-- TikTok Script -->
+        <article class="out-card">
+          <div class="out-card-header">
+            <span class="out-card-label">TikTok Script</span>
+            <button class="copy-btn" onclick="copyBlock('out-tiktok', this)">Copy</button>
+          </div>
+          <pre id="out-tiktok" class="out-card-body script-body"></pre>
+        </article>
+
+        <!-- CTA -->
+        <article class="out-card">
+          <div class="out-card-header">
+            <span class="out-card-label">Call to Action</span>
+            <button class="copy-btn" onclick="copyBlock('out-cta', this)">Copy</button>
+          </div>
+          <p id="out-cta" class="out-card-body"></p>
+        </article>
+
+        <!-- Hashtags -->
+        <article class="out-card">
+          <div class="out-card-header">
+            <span class="out-card-label">Hashtags</span>
+            <button class="copy-btn" onclick="copyBlock('out-hashtags', this)">Copy</button>
+          </div>
+          <div id="out-hashtags" class="out-card-body hashtag-body"></div>
+        </article>
+
+      </div><!-- /#output-cards -->
+
+    </section><!-- /#output-section -->
+
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
